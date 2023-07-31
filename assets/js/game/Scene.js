@@ -2,11 +2,14 @@ import {CITIES} from './data/cities';
 import {TROLLS} from './data/trolls';
 import {WORLD} from './data/world';
 import {COINS} from './data/coins';
+import { Popin } from "./ui/Popin";
 import Hero from './objects/Hero';
 import City from './objects/City';
 import Map from './objects/Map';
 import Troll from './objects/Troll';
 import Coin from './objects/Coin';
+import UI from'./UI';
+
 
 export default class Scene {
   constructor(game) {
@@ -28,6 +31,8 @@ export default class Scene {
       ...this.trolls,
       this.hero
     ]
+    const popinEndElement = document.getElementById('popin-end');
+    this.popinEnd = new Popin(popinEndElement); 
   }
   doubleMatrix() {
     let matrice = [];
@@ -44,7 +49,7 @@ export default class Scene {
   }
   addCoins() {
     COINS.forEach((coin, index) => {
-      this.coins.push(new Coin({...coin, index}));
+      this.coins.push(new Coin({...coin, index, collected: false}));
     });
   }
   addAlice() {
@@ -78,11 +83,30 @@ export default class Scene {
       }
     });
   }
+  checkAllCoinsCollected() {
+    return this.coins.every(coin => coin.collected);
+  }
+  checkAndDisplayPopin() {
+    if (this.checkAllCoinsCollected()) {
+      const ui = new UI();
+      ui.openPopin('popin-end', true);
+    }
+  }
+  collectCoin(id) {
+    this.coinsPicked += 1;
+    document.getElementById('sound-coin').play();
+    this.closePopin(id);
+    this.update();
+    this.coins[id].collected = true; 
+    this.checkAndDisplayPopin();
+  }
+  
   update() {
     this.map.update();
     this.coins.forEach(coin => coin.update());
     this.elements.sort((a, b) => (a.y + a.depthOffset) - (b.y + b.depthOffset))
     this.elements.forEach(element => element.update());
     this.checkCollision();
+    this.checkAndDisplayPopin();
   }
 }

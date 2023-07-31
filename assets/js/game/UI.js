@@ -18,11 +18,13 @@ class UI {
       this.closePopin(id);
     }
   }
-  openPopin(id) {
-    this.closeAllPopins();
+  openPopin(id, closeOthers = true) {
+    if (closeOthers) {
+      this.closeAllPopins();
+    }
     this.popins[id].open();
     return this.popins[id];
-  }
+  }  
   closePopin(id) {
     this.popins[id].close();
   }
